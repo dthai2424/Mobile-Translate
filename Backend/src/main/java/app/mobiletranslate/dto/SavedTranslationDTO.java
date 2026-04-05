@@ -1,7 +1,6 @@
 package app.mobiletranslate.dto;
 
 import lombok.*;
-import org.springframework.stereotype.Component;
 
 @Builder
 @Getter
@@ -9,8 +8,11 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class TranslationResponseDTO {
+public class SavedTranslationDTO {
     private int userId;
-
+    private String sourceLangId;
+    private String sourceText;
+    private String targetLangId;
     private String targetText;
+    private boolean active;
 }

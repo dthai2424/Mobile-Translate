@@ -1,7 +1,7 @@
 package app.mobiletranslate.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.springframework.stereotype.Component;
 
 @Builder
 @Getter
@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class TranslationResponseDTO {
-    private int userId;
-
+public class APITranslationResponse {
+    @JsonProperty("translatedText")
     private String targetText;
 }
