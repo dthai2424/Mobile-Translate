@@ -10,7 +10,6 @@ import lombok.*;
 @Table(name="Language")
 public class Language {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private String languageId;
     private String languageName;
     private boolean active;

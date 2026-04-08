@@ -28,10 +28,10 @@ public class SavedTranslation {
     private String sourceText;
 
     @ManyToOne
-    @JoinColumn(name="translatedLanguageId",nullable = false)
-    private Language translateLanguage;
+    @JoinColumn(name="targetLanguageId",nullable = false)
+    private Language targetLanguage;
 
-    private String translateText;
+    private String targetText;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
