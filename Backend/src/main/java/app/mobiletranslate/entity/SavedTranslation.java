@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SavedTranslation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

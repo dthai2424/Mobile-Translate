@@ -1,9 +1,14 @@
 package app.mobiletranslate.service;
 
+import app.mobiletranslate.dto.LoginRequestDTO;
+import app.mobiletranslate.dto.RegisterRequestDTO;
 import app.mobiletranslate.dto.UserDTO;
 import app.mobiletranslate.entity.User;
-import app.mobiletranslate.exception.UserNotFoundException;
-import app.mobiletranslate.exception.UserRegisterException;
+import app.mobiletranslate.exception.AlreadyExistException;
+import app.mobiletranslate.exception.NotFoundException;
+
+import app.mobiletranslate.exception.InvalidFormatException;
+import app.mobiletranslate.exception.UnauthorizedException;
 import app.mobiletranslate.repository.UserRepository;
 import app.mobiletranslate.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +42,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO getUserById(int userId,boolean active) {
       Optional<User> user=userRepository.findById(userId);
       if(!user.isEmpty()){
-          throw new UserNotFoundException("Khong tim thay User");
+          throw new NotFoundException("Khong tim thay User");
       }else{
           UserDTO userDTO=userUtil.entityToModel(user.get());
           return userDTO;
@@ -45,10 +50,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserEntityById(int userId, boolean active) {
+       Optional<User> user=userRepository.findById(userId);
+         if(user.isEmpty())
+              throw new NotFoundException("Khong tim thay User");
+         return user.get();
+    }
+
+    @Override
     public UserDTO getUserByUsername(String username,boolean active) {
         Optional<User> user=userRepository.findByUsername(username);
         if(user.isEmpty()){
-            throw new UserNotFoundException("Khong tim thay User");
+            throw new NotFoundException("Khong tim thay User");
         }else{
             UserDTO userDTO=userUtil.entityToModel(user.get());
             return userDTO;
@@ -59,7 +72,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO getUserByEmail(String email,boolean active) {
         Optional<User> user=userRepository.findByEmailAndActive(email, active);
         if(user.isEmpty()){
-            throw new UserNotFoundException("Khong tim thay User");
+            throw new NotFoundException("Khong tim thay User");
         }else{
             UserDTO userDTO=userUtil.entityToModel(user.get());
             return userDTO;
@@ -67,17 +80,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO create(UserDTO userDTO,String password) {
+    public UserDTO create(UserDTO userDTO, String password) {
         userDTO.setUsername(userDTO.getUsername().toLowerCase());
         userDTO.setEmail(userDTO.getEmail().toLowerCase());
+        if(userRepository.existByUsername(userDTO.getUsername())||userRepository.existByEmail(userDTO.getEmail())){
+            throw new AlreadyExistException("Username hoac email da ton tai");
+        }
         if(!userUtil.validateUsername(userDTO.getUsername())) {
-            throw new UserRegisterException("Ten khong hop le");
+            throw new InvalidFormatException("Ten khong hop le");
         }
         if(!userUtil.validateEmail(userDTO.getEmail())) {
-            throw new UserRegisterException("Email khong hop le");
+            throw new InvalidFormatException("Email khong hop le");
         }
         if(!userUtil.validatePassword(password)){
-            throw new UserRegisterException("Password khong hop le");
+            throw new InvalidFormatException("Password khong hop le");
         }
         password=passwordEncoder.encode(password);
         User user=userUtil.modelToEntity(userDTO);
@@ -88,13 +104,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO register(UserDTO userDTO, String password) {
+    public UserDTO register(RegisterRequestDTO registerRequestDTO) {
+        UserDTO userDTO=registerRequestDTO.getUserDTO();
+        String password=registerRequestDTO.getPassword();
         UserDTO newUser=create(userDTO,password);
         return newUser;
     }
 
     @Override
-    public UserDTO login(String username, String password) {
+    public UserDTO login(LoginRequestDTO loginRequestDTO) {
+        String username=loginRequestDTO.getUsername().toLowerCase();
+        String password=loginRequestDTO.getPassword();
+        Optional<User> user=userRepository.findByUsernameAndActive(username,true);
+        if(user.isEmpty()){
+            throw new NotFoundException("Khong tim thay User");
+
+        }
+        if(!passwordEncoder.matches(password,user.get().getPassword())){
+            throw new UnauthorizedException("Tai khoan hoac mat khau khong chinh xac");
+        }
+
 //        Optional<User> user=userRepository.findByUsernameAndActive(username,true);
 //        if(user.isEmpty()){
 //            throw new UserNotFoundException("Khong tim thay User");

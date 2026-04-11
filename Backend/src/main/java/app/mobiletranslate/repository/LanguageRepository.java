@@ -12,6 +12,7 @@ import java.util.Optional;
 
 public interface LanguageRepository extends JpaRepository<Language,String> {
     boolean existsByLanguageIdAndActive(String languageId,boolean active);
+    boolean existsByLanguageId(String languageId);
     Optional<Language> findByLanguageIdAndActive(String languageId,boolean active);
     List<Language> getAllByActiveIsTrue();
 

@@ -2,6 +2,9 @@ package app.mobiletranslate.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
+
 @Builder
 @Getter
 @Setter
@@ -9,10 +12,12 @@ import lombok.*;
 @AllArgsConstructor
 @Data
 public class SavedTranslationDTO {
+    private int savedTranslationId;
     private int userId;
     private String sourceLangId;
     private String sourceText;
     private String targetLangId;
     private String targetText;
-    private boolean active;
+    private LocalDateTime createdAt;
+
 }

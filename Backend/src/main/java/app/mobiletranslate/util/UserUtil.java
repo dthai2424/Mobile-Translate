@@ -8,8 +8,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-@Builder
+
 @Component
+@Builder
+@NoArgsConstructor
 public class UserUtil {
     public UserDTO entityToModel(User user){
         UserDTO userDTO=UserDTO.builder().userId(user.getUserId()).username(user.getUsername()).email(user.getEmail()).role(user.getRole()).active(user.isActive()).build();
