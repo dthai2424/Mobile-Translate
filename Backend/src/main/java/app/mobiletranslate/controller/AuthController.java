@@ -1,5 +1,6 @@
 package app.mobiletranslate.controller;
 
+import app.mobiletranslate.dto.AuthResponseDTO;
 import app.mobiletranslate.dto.LoginRequestDTO;
 import app.mobiletranslate.dto.RegisterRequestDTO;
 import app.mobiletranslate.dto.UserDTO;
@@ -16,16 +17,16 @@ public class AuthController {
     private UserServiceImpl userService;
 
     @PutMapping("/register")
-    public ResponseEntity<UserDTO> register(@RequestBody RegisterRequestDTO registerInfo) {
+    public ResponseEntity<?> register(@RequestBody RegisterRequestDTO registerInfo) {
         UserDTO userDTO= userService.register(registerInfo);
         return ResponseEntity.status(201).body(userDTO);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserDTO> login(@RequestBody LoginRequestDTO loginInfo) {
-        UserDTO userDTO= userService.login(loginInfo);
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginInfo) {
+        AuthResponseDTO response= userService.login(loginInfo);
 
-        return ResponseEntity.status(200).body(userDTO);
+        return ResponseEntity.status(200).body(response);
     }
 
 

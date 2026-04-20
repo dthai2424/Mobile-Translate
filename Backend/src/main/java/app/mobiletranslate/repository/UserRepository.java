@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User,Integer> {
-    boolean existByUsername(String username);
-    boolean existByEmail(String email);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
     Optional<User> findByUserIdAndActive(int userId, boolean active);
     Optional<User> findByEmailAndActive(String email,boolean active);
     List<User> findAllByActive(boolean active);

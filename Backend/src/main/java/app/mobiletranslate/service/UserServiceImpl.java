@@ -1,5 +1,6 @@
 package app.mobiletranslate.service;
 
+import app.mobiletranslate.dto.AuthResponseDTO;
 import app.mobiletranslate.dto.LoginRequestDTO;
 import app.mobiletranslate.dto.RegisterRequestDTO;
 import app.mobiletranslate.dto.UserDTO;
@@ -25,7 +26,8 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private UserUtil userUtil;
-
+    @Autowired
+    private JwtService jwtService;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Override
@@ -41,7 +43,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO getUserById(int userId,boolean active) {
       Optional<User> user=userRepository.findById(userId);
-      if(!user.isEmpty()){
+      if(user.isEmpty()){
           throw new NotFoundException("Khong tim thay User");
       }else{
           UserDTO userDTO=userUtil.entityToModel(user.get());
@@ -83,7 +85,7 @@ public class UserServiceImpl implements UserService {
     public UserDTO create(UserDTO userDTO, String password) {
         userDTO.setUsername(userDTO.getUsername().toLowerCase());
         userDTO.setEmail(userDTO.getEmail().toLowerCase());
-        if(userRepository.existByUsername(userDTO.getUsername())||userRepository.existByEmail(userDTO.getEmail())){
+        if(userRepository.existsByUsername(userDTO.getUsername())||userRepository.existsByEmail(userDTO.getEmail())){
             throw new AlreadyExistException("Username hoac email da ton tai");
         }
         if(!userUtil.validateUsername(userDTO.getUsername())) {
@@ -112,7 +114,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO login(LoginRequestDTO loginRequestDTO) {
+    public AuthResponseDTO login(LoginRequestDTO loginRequestDTO) {
         String username=loginRequestDTO.getUsername().toLowerCase();
         String password=loginRequestDTO.getPassword();
         Optional<User> user=userRepository.findByUsernameAndActive(username,true);
@@ -124,11 +126,9 @@ public class UserServiceImpl implements UserService {
             throw new UnauthorizedException("Tai khoan hoac mat khau khong chinh xac");
         }
 
-//        Optional<User> user=userRepository.findByUsernameAndActive(username,true);
-//        if(user.isEmpty()){
-//            throw new UserNotFoundException("Khong tim thay User");
-//        }
-
-        return null;
+        String jwtToken=jwtService.generateToken(user.get());
+        UserDTO userDTO=userUtil.entityToModel(user.get());
+        AuthResponseDTO response= AuthResponseDTO.builder().userDTO(userDTO).access_token(jwtToken).build();
+        return response;
     }
 }
