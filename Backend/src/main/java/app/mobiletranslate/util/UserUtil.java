@@ -18,7 +18,7 @@ public class UserUtil {
         return userDTO;
     }
     public User modelToEntity(UserDTO userDTO){
-        User user= User.builder().userId(userDTO.getUserId()).email(userDTO.getEmail()).role(userDTO.getRole()).active(userDTO.isActive()).build();
+        User user= User.builder().username(userDTO.getUsername()).email(userDTO.getEmail()).role(userDTO.getRole()).active(userDTO.isActive()).build();
         return user;
     }
     public boolean validateEmail(String email){
@@ -34,8 +34,5 @@ public class UserUtil {
 
         return password.matches(passwordRegex);
     }
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
+
 }

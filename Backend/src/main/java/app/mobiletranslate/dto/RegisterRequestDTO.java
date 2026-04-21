@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Data
 public class RegisterRequestDTO {
-    private UserDTO userDTO;
+    private String username;
+    private String email;
     private String password;
 }

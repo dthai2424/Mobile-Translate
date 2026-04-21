@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Data
 public class TranslationRequestDTO {
-    private int userId;
+
     private String sourceLangId;
     private String sourceText;
 

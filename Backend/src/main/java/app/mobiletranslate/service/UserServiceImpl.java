@@ -4,6 +4,7 @@ import app.mobiletranslate.dto.AuthResponseDTO;
 import app.mobiletranslate.dto.LoginRequestDTO;
 import app.mobiletranslate.dto.RegisterRequestDTO;
 import app.mobiletranslate.dto.UserDTO;
+import app.mobiletranslate.entity.Role;
 import app.mobiletranslate.entity.User;
 import app.mobiletranslate.exception.AlreadyExistException;
 import app.mobiletranslate.exception.NotFoundException;
@@ -84,6 +85,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO create(UserDTO userDTO, String password) {
         userDTO.setUsername(userDTO.getUsername().toLowerCase());
+        System.out.println(userDTO.getUsername());
         userDTO.setEmail(userDTO.getEmail().toLowerCase());
         if(userRepository.existsByUsername(userDTO.getUsername())||userRepository.existsByEmail(userDTO.getEmail())){
             throw new AlreadyExistException("Username hoac email da ton tai");
@@ -107,7 +109,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO register(RegisterRequestDTO registerRequestDTO) {
-        UserDTO userDTO=registerRequestDTO.getUserDTO();
+        UserDTO userDTO=UserDTO.builder().active(true).role(Role.USER).username(registerRequestDTO.getUsername()).email(registerRequestDTO.getEmail()).build();
         String password=registerRequestDTO.getPassword();
         UserDTO newUser=create(userDTO,password);
         return newUser;

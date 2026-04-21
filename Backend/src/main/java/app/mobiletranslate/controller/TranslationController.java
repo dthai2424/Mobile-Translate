@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/api/v1/translate")
+@RequestMapping("/api/translate")
 public class TranslationController {
     @Autowired
     LibreTranslateService libreTranslateService;
@@ -26,7 +26,7 @@ public class TranslationController {
         if(!translationUtil.validate(clientRequest)) throw new InvalidFormatException("Chon lai ngon ngu hoac viet lai van ban can dich");
         APITranslationRequest request= translationUtil.clientRequestToApiRequest(clientRequest);
         APITranslationResponse response=libreTranslateService.getTranslation(request);
-        TranslationResponseDTO clientResponse=translationUtil.apiResponseToClientResponse(clientRequest.getUserId(),response);
+        TranslationResponseDTO clientResponse=translationUtil.apiResponseToClientResponse(response);
         return ResponseEntity.ok(clientResponse);
     }
 

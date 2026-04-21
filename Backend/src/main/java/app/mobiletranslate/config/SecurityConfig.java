@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll() // Endpoint đăng nhập, đăng ký không cần token
+                        .requestMatchers("/api/auth/**","/api/translate/**").permitAll() // Endpoint đăng nhập, đăng ký không cần token
                         .anyRequest().authenticated() // Các endpoint khác cần có token hợp lệ
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -18,8 +18,8 @@ public class TranslationUtil {
         APITranslationRequest apiRequest=APITranslationRequest.builder().sourceLangId(request.getSourceLangId()).sourceText(request.getSourceText()).targetLangId(request.getTargetLangId()).api_key("").build();
         return apiRequest;
     }
-    public TranslationResponseDTO apiResponseToClientResponse(int userId,APITranslationResponse response){
-        TranslationResponseDTO clientResponse= TranslationResponseDTO.builder().userId(userId).targetText(response.getTargetText()).build();
+    public TranslationResponseDTO apiResponseToClientResponse(APITranslationResponse response){
+        TranslationResponseDTO clientResponse= TranslationResponseDTO.builder().targetText(response.getTargetText()).build();
         return clientResponse;
     }
 }

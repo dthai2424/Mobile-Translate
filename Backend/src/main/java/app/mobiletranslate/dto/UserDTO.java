@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Data
 public class UserDTO {
-    private int userId;
+    private Integer userId;
     private String username;
     private String email;
     private Role role=Role.USER;
