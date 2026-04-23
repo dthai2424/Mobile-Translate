@@ -1,8 +1,6 @@
 package app.mobiletranslate.util;
 
-import app.mobiletranslate.dto.LanguageDTO;
-import app.mobiletranslate.dto.SavedTranslationDTO;
-import app.mobiletranslate.dto.UserDTO;
+import app.mobiletranslate.dto.*;
 import app.mobiletranslate.entity.Language;
 import app.mobiletranslate.entity.SavedTranslation;
 import app.mobiletranslate.entity.User;
@@ -21,5 +19,31 @@ public class SavedTranslationUtil {
     public SavedTranslation modelToEntity(SavedTranslationDTO savedTranslationDTO, User user,Language source, Language target, boolean active) {
         SavedTranslation savedTranslation = SavedTranslation.builder().user(user).sourceLanguage(source).sourceText(savedTranslationDTO.getSourceText()).targetLanguage(target).targetText(savedTranslationDTO.getTargetText()).active(active).build();
         return savedTranslation;
+    }
+    public SavedTranslationResponseDTO entityToResponse(SavedTranslation entity) {
+        return SavedTranslationResponseDTO.builder()
+                .savedTranslationId(entity.getSavedTranslationId())
+                .sourceLang(entity.getSourceLanguage().getLanguageId())
+                .sourceText(entity.getSourceText())
+                .targetLang(entity.getTargetLanguage().getLanguageId())
+                .targetText(entity.getTargetText())
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
+
+
+    public SavedTranslation requestToEntity(SavedTranslationRequestDTO dto,
+                                            User user,
+                                            Language sourceLang,
+                                            Language targetLang) {
+
+        return SavedTranslation.builder()
+                .user(user)
+                .sourceLanguage(sourceLang)
+                .sourceText(dto.getSourceText())
+                .targetLanguage(targetLang)
+                .targetText(dto.getTargetText())
+                .active(true)
+                .build();
     }
 }

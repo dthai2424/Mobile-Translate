@@ -1,7 +1,8 @@
 package app.mobiletranslate.service;
 
-import app.mobiletranslate.dto.LanguageDTO;
 import app.mobiletranslate.dto.SavedTranslationDTO;
+import app.mobiletranslate.dto.SavedTranslationRequestDTO;
+import app.mobiletranslate.dto.SavedTranslationResponseDTO;
 import app.mobiletranslate.entity.Language;
 import app.mobiletranslate.entity.SavedTranslation;
 import app.mobiletranslate.entity.User;
@@ -11,11 +12,12 @@ import app.mobiletranslate.repository.SavedTranslationRepository;
 import app.mobiletranslate.repository.UserRepository;
 import app.mobiletranslate.util.SavedTranslationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,34 +32,64 @@ public class SaveTranslationServiceImpl implements SavedTranslationService
     private SavedTranslationRepository savedTranslationRepository;
     @Autowired
     private SavedTranslationUtil savedTranslationUtil;
+    @Autowired
+    private LanguageRepository languageRepository;
+    @Autowired
+    private UserRepository userRepository;
 
 
     @Override
-    public List<SavedTranslationDTO> getUserActiveSavedTranslation(int userId) {
-        List<SavedTranslation> savedTranslationList=savedTranslationRepository.findAllByUser_UserIdAndActiveOrderByCreatedAtDesc(userId,true);
-        List<SavedTranslationDTO> list=new ArrayList<>();
-        for(SavedTranslation savedTranslation:savedTranslationList){
-            list.add(savedTranslationUtil.entityToModel(savedTranslation));
-        }
-        return list;
+    public List<SavedTranslationResponseDTO> getUserActiveSavedTranslation() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return savedTranslationRepository
+                .findAllByUser_UserIdAndActiveOrderByCreatedAtDesc(user.getUserId(), true)
+                .stream()
+                .map(savedTranslationUtil::entityToResponse)
+                .toList();
     }
 
     @Override
     public List<SavedTranslationDTO> getAllSavedTranslation(boolean active) {
-        return List.of();
-    }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
 
-    @Override
-    public List<SavedTranslationDTO> getUserSavedTranslationBySourceLanguage(int userId, String sourceLangId) {
-        List<SavedTranslation> savedTranslationList=savedTranslationRepository.findAllByUser_UserIdAndSourceLanguage_LanguageIdAndActiveOrderByCreatedAtDesc(userId,sourceLangId,true);
-        List<SavedTranslationDTO> list=new ArrayList<>();
-        for(SavedTranslation savedTranslation:savedTranslationList){
+        List<SavedTranslation> savedTranslationList = savedTranslationRepository
+                .findAllByUser_UserIdAndActiveOrderByCreatedAtDesc(user.getUserId(),true);
+
+        List<SavedTranslationDTO> list = new ArrayList<>();
+        for(SavedTranslation savedTranslation : savedTranslationList){
             list.add(savedTranslationUtil.entityToModel(savedTranslation));
         }
         return list;
     }
 
+
+    @Override
+    public List<SavedTranslationDTO> getUserSavedTranslationBySourceLanguage(String sourceLang) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+
+        List<SavedTranslation> savedTranslationList = savedTranslationRepository
+                .findAllByUser_UserIdAndSourceLanguage_LanguageIdAndActiveOrderByCreatedAtDesc(user.getUserId(), sourceLang,true);
+
+        List<SavedTranslationDTO> list = new ArrayList<>();
+        for(SavedTranslation savedTranslation : savedTranslationList){
+            list.add(savedTranslationUtil.entityToModel(savedTranslation));
+        }
+        return list;
+    }
 
     @Override
     public boolean saveTranslation(SavedTranslationDTO savedTranslationDTO) {
@@ -81,5 +113,32 @@ public class SaveTranslationServiceImpl implements SavedTranslationService
         savedTranslationRepository.save(savedTranslation.get());
 
         return true;
+    }
+    @Override
+    @Transactional
+    public SavedTranslation save(SavedTranslationRequestDTO requestDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        // Sử dụng username lấy từ token để tìm User
+        System.out.println("sourcelang: "+requestDTO.getSourceLang());
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Language sourceLang = languageRepository.findByLanguageIdAndActive(requestDTO.getSourceLang(),true)
+                .orElseThrow(() -> new RuntimeException("Source language not found"));
+
+        Language translateLang = languageRepository.findByLanguageIdAndActive(requestDTO.getTargetLang(),true)
+                .orElseThrow(() -> new RuntimeException("Translate language not found"));
+
+        SavedTranslation savedTranslation = new SavedTranslation();
+        savedTranslation.setUser(user);
+        savedTranslation.setSourceLanguage(sourceLang);
+        savedTranslation.setSourceText(requestDTO.getSourceText());
+        savedTranslation.setTargetLanguage(translateLang);
+        savedTranslation.setTargetText(requestDTO.getTargetText());
+        savedTranslation.setActive(true);
+
+        return savedTranslationRepository.save(savedTranslation);
     }
 }
