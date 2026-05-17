@@ -16,7 +16,7 @@ public class AuthController {
     @Autowired
     private UserServiceImpl userService;
 
-    @PutMapping("/register")
+    @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequestDTO registerInfo) {
         UserDTO userDTO= userService.register(registerInfo);
         return ResponseEntity.status(201).body(userDTO);
